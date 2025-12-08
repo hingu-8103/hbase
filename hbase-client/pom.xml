@@ -205,11 +205,29 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <!-- Added for module-info requires static com.google.errorprone.annotations -->
+    <dependency>
+      <groupId>com.google.errorprone</groupId>
+      <artifactId>error_prone_annotations</artifactId>
+      <version>2.41.0</version>
+    </dependency>
   </dependencies>
   <!--REMOVE-->
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.6.1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>properties</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <!--Make it so assembly:single does nothing in here-->
         <artifactId>maven-assembly-plugin</artifactId>
@@ -220,7 +238,60 @@
       <plugin>
         <groupId>net.revelc.code</groupId>
         <artifactId>warbucks-maven-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+        <configuration>
+          <skipTestCompile>true</skipTestCompile>
+          <compilerArgs>
+            <arg>--patch-module</arg>
+            <arg>zookeeper=${org.apache.zookeeper:zookeeper-jute:jar}</arg>
+            <arg>--add-exports</arg>
+            <arg>zookeeper/org.apache.zookeeper.data=org.apache.hadoop.hbase.client</arg>
+
+            <arg>--patch-module</arg>
+            <arg>org.apache.hadoop.hbase.client=${project.basedir}/../hbase-common/target/classes${path.separator}${project.basedir}/../hbase-protocol-shaded/target/classes${path.separator}${org.apache.hbase.thirdparty:hbase-shaded-netty:jar}${path.separator}${org.apache.hbase.thirdparty:hbase-shaded-gson:jar}${path.separator}${org.apache.hbase.thirdparty:hbase-shaded-miscellaneous:jar}</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+      <!--      <plugin>-->
+      <!--        <groupId>org.apache.maven.plugins</groupId>-->
+      <!--        <artifactId>maven-compiler-plugin</artifactId>-->
+      <!--        <version>3.13.0</version>-->
+      <!--        <executions>-->
+      <!--          <execution>-->
+      <!--            <id>default-compile</id>-->
+      <!--            <configuration>-->
+      <!--              <compilerArgs>-->
+      <!--                <arg>&#45;&#45;patch-module</arg>-->
+      <!--                <arg>zookeeper=${org.apache.zookeeper:zookeeper-jute:jar}</arg>-->
+      <!--                <arg>&#45;&#45;add-exports</arg>-->
+      <!--                <arg>zookeeper/org.apache.zookeeper.data=org.apache.hadoop.hbase.client</arg>-->
+      <!--                <arg>&#45;&#45;patch-module</arg>-->
+      <!--                <arg>org.apache.hadoop.hbase.client=${project.basedir}/../hbase-common/target/classes${path.separator}${project.basedir}/../hbase-protocol-shaded/target/classes${path.separator}${org.apache.hbase.thirdparty:hbase-shaded-netty:jar}${path.separator}${org.apache.hbase.thirdparty:hbase-shaded-gson:jar}${path.separator}${org.apache.hbase.thirdparty:hbase-shaded-miscellaneous:jar}</arg>-->
+      <!--              </compilerArgs>-->
+      <!--            </configuration>-->
+      <!--          </execution>-->
+      <!--          <execution>-->
+      <!--            <id>default-testCompile</id>-->
+      <!--            <configuration>-->
+      <!--              <compilerArgs>-->
+      <!--                <arg>&#45;&#45;patch-module</arg>-->
+      <!--                <arg>zookeeper=${org.apache.zookeeper:zookeeper-jute:jar}</arg>-->
+      <!--                <arg>&#45;&#45;add-exports</arg>-->
+      <!--                <arg>zookeeper/org.apache.zookeeper.data=org.apache.hadoop.hbase.client</arg>-->
+      <!--                <arg>&#45;&#45;add-reads</arg>-->
+      <!--                <arg>org.apache.hadoop.hbase.client=ALL-UNNAMED</arg>-->
+      <!--              </compilerArgs>-->
+      <!--            </configuration>-->
+      <!--          </execution>-->
+      <!--        </executions>-->
+      <!--      </plugin>-->
     </plugins>
   </build>
 
